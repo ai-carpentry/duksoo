@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "duksoo",
+    "section": "",
+    "text": "This is a Quarto website.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites.\n\n1 + 1\n\n[1] 2"
+  },
+  {
+    "objectID": "data.html",
+    "href": "data.html",
+    "title": "서울시 학교데이터",
+    "section": "",
+    "text": "데이터\n\n학교알리미 - 공개용데이터\n\n서울시 학교 기본정보\n\n\n\n\n학교현황\n\nlibrary(tidyverse)\nlibrary(httr)\n\nschool_url <- glue::glue(\"https://www.schoolinfo.go.kr/openApi.do\",\n                         \"?apiKey={Sys.getenv('SCHOOL_INFO_KEY')}\",\n                         \"&apiType=0\",\n                         \"&pbanYr=2023\",\n                         \"&schulKndCode=02\")\n\n\n\nresp <- GET(school_url)\n\nschool_json <- content(resp, \"text\", encoding='utf-8')\nschool_json\n\n\nimport requests\nimport json\n\nschool_url = \"https://www.schoolinfo.go.kr/openApi.do?apiKey={}&apiType=0&pbanYr=2023&schulKndCode=02\".format(os.environ.get(\"SCHOOL_INFO_KEY\"))\n\nresp = requests.get(school_url, verify=False)\n\nschool_json = json.loads(resp.text)\n\nprint(school_json)"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site\n\n1 + 1\n\n[1] 2"
+  }
+]

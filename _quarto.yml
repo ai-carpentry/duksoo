@@ -1,7 +1,11 @@
 project:
+  type: website
   output-dir: docs
   preview:
     browser: true
+
+lang: kr
+date-format: "YYYY년 MM월 DD일"
 
 website:
   title: "duksoo"
@@ -9,6 +13,8 @@ website:
     left:
       - href: index.qmd
         text: Home
+      - href: data.qmd
+        text: "데이터"
       - about.qmd
 
 format:
