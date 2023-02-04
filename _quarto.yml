@@ -13,8 +13,10 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: data.qmd
-        text: "데이터"
+      - href: school_data.qmd
+        text: "경기 초중등"
+      - href: student_data.qmd
+        text: "경기 학생수"
       - about.qmd
 
 format:

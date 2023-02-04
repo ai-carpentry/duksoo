@@ -1,0 +1,163 @@
+---
+title: "경기도 초중등"
+subtitle: "초중등 학교 현황"
+author:
+  - name: 이광춘
+    url: https://www.linkedin.com/in/kwangchunlee/
+    affiliation: 한국 R 사용자회
+    affiliation-url: https://github.com/bit2r
+title-block-banner: true
+#title-block-banner: "#562457"
+format:
+  html:
+    css: css/quarto.css
+    theme: flatly
+    code-fold: true
+    toc: true
+    toc-depth: 3
+    toc-title: 목차
+    number-sections: true
+    highlight-style: github    
+    self-contained: false
+filters:
+   - lightbox
+lightbox: auto
+link-citations: yes
+knitr:
+  opts_chunk: 
+    message: false
+    warning: false
+    collapse: true
+    comment: "#>" 
+    R.options:
+      knitr.graphics.auto_pdf: true
+editor_options: 
+  chunk_output_type: console
+---
+
+# 경기도 초중등 학교
+
+## 경기도 교육지원청 코드
+
+```{r}
+library(tidyverse)
+library(readxl)
+edu_table_raw <- read_excel("data/전국교육행정구역표준데이터-20230204.xlsx", sheet="데이터", skip=1)
+
+gg_edu_code <- edu_table_raw %>%
+  filter(str_detect(시도교육청명, "경기도교육청")) %>% 
+  select("교육행정구역ID", "교육행정구역명", "시도교육청코드", "시도교육청명", "교육지원청코드", "교육지원청명")
+
+gg_edu_code
+```
+
+## 데이터 크롤링
+
+### 여주교육지원청
+
+```{r}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+
+school_url <- glue::glue("https://openapi.gg.go.kr/Elmntymdclslocm",
+                         "?Key={Sys.getenv('GG_API_KEY')}",
+                         "&EDU_SPORT_ADMT_DIV_CD=7781000", # 여주교육지원청
+                         "&Type=json",
+                         "&pIndex=1",
+                         "&pSize=1000")
+
+resp <- GET(school_url)
+
+school_json <- content(resp, "text", encoding='utf-8')
+
+school_raw <- jsonlite::fromJSON(school_json)
+
+school_df <- school_raw$Elmntymdclslocm$row[[2]] %>% 
+  as_tibble()
+
+school_df
+```
+
+### 교육지원청별 함수
+
+```{r}
+
+get_school_info <- function(school_code = "7781000") {
+  
+  school_url <- glue::glue("https://openapi.gg.go.kr/Elmntymdclslocm",
+                         "?Key={Sys.getenv('GG_API_KEY')}",
+                         "&EDU_SPORT_ADMT_DIV_CD={school_code}", # 여주교육지원청
+                         "&Type=json",
+                         "&pIndex=1",
+                         "&pSize=1000")
+
+  resp <- GET(school_url)
+  
+  school_json <- content(resp, "text", encoding='utf-8')
+  
+  school_raw <- jsonlite::fromJSON(school_json)
+  
+  school_df <- school_raw$Elmntymdclslocm$row[[2]] %>% 
+    as_tibble()
+  
+  school_df
+}
+
+get_school_info('7569000') # 안양과천교육청
+```
+
+### 교육지원청 전체
+
+```{r}
+#| eval: false
+
+gg_school_raw <- gg_edu_code  %>% 
+  select(교육행정구역명, 교육지원청코드, 교육지원청명 ) %>% 
+  mutate(data = map(교육지원청코드, get_school_info))
+
+
+gg_school_raw %>% 
+  write_rds("data/gg_school_raw.rds")
+```
+
+### 데이터 정제작업
+
+```{r}
+#| eval: false
+
+gg_school_raw <- 
+  read_rds("data/gg_school_raw.rds")
+
+gg_colnames <- read_excel("data/초․중등학교 위치 현황(개방표준)_오픈API명세서.xlsx", skip = 23) %>% 
+  janitor::clean_names(ascii=FALSE) %>% 
+  mutate(no = as.numeric(no)) %>% 
+  slice(5:22) %>% 
+  pull(출력_설명)
+
+gg_school_tbl <- gg_school_raw %>% 
+  unnest(data) %>% 
+  set_names(c("교육행정구역명", "교육지원청코드", "교육지원청명", gg_colnames)) %>% 
+  select(-교육지원청코드, -교육지원청명)
+
+gg_school_tbl %>% 
+  write_rds("data/gg_school_tbl_20230201.rds")
+```
+
+# 경기 학교현황
+
+```{r}
+library(gt)
+
+gg_school_tbl <- 
+  read_rds("data/gg_school_tbl_20230201.rds") 
+
+gg_school_tbl %>% 
+  count(교육행정구역명, 학교급구분) %>% 
+  pivot_wider(names_from = 학교급구분,
+              values_from = n) %>% 
+  mutate(총학교수 = 초등학교 + 중학교 + 고등학교) %>% 
+  select(교육행정구역명, 초등학교, 중학교, 고등학교, 총학교수) %>% 
+  arrange(desc(총학교수)) %>% 
+  reactable::reactable()
+```
