@@ -13,10 +13,12 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - href: school_data.qmd
-        text: "경기 초중등"
-      - href: student_data.qmd
-        text: "경기 학생수"
+      - text: "경기도 학교"
+        menu:
+        - href: school_data.qmd
+          text: "경기 초중등"
+        - href: closed_school.qmd
+          text: "경기 폐교현황"
       - about.qmd
 
 format:

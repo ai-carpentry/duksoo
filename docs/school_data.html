@@ -156,14 +156,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <a class="nav-link" href="./index.html">
  <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./school_data.html" aria-current="page">
- <span class="menu-text">경기 초중등</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">경기도 학교</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-">    
+        <li>
+    <a class="dropdown-item" href="./school_data.html">
+ <span class="dropdown-text">경기 초중등</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./student_data.html">
- <span class="menu-text">경기 학생수</span></a>
+        <li>
+    <a class="dropdown-item" href="./closed_school.html">
+ <span class="dropdown-text">경기 폐교현황</span></a>
   </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./about.html">
  <span class="menu-text">About</span></a>
